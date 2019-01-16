@@ -1,6 +1,7 @@
 package main
 
 import (
+	"blog/common"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -14,21 +15,6 @@ import (
 const (
 	outputPathPrefix = "../data/"
 )
-
-type BlogInfo struct {
-	Name       string // 不包含扩展名
-	ModifyDate string
-	Desc       string   // 这个先不管
-	Tag        []string // 这个也先不管
-}
-
-func (info BlogInfo) Markdown() string {
-	return info.Name + ".md"
-}
-
-func (info BlogInfo) Html() string {
-	return info.Name + ".html"
-}
 
 func main() {
 	inputPath := ""
@@ -55,21 +41,21 @@ func main() {
 	return
 }
 
-func getBlogInfo(inputPath string) *BlogInfo {
+func getBlogInfo(inputPath string) *common.BlogInfo {
 	f, err := os.Stat(inputPath)
 	if err != nil {
 		return nil
 	}
 	ext := path.Ext(f.Name())                     // 获取文件扩展名 .md
 	fileName := strings.TrimSuffix(f.Name(), ext) // 去除扩展名, 只保留文件名
-	blogInfo := BlogInfo{
+	blogInfo := common.BlogInfo{
 		Name:       fileName,
 		ModifyDate: f.ModTime().Format("20060102"),
 	}
 	return &blogInfo
 }
 
-func convertHtml(info *BlogInfo, inputPath string) error {
+func convertHtml(info *common.BlogInfo, inputPath string) error {
 	// 1. 构建输出文件名
 	outputPath := outputPathPrefix + info.Html()
 	// 2. 调用 blackfriday-tool 来完成转换
@@ -85,7 +71,7 @@ func convertHtml(info *BlogInfo, inputPath string) error {
 	return nil
 }
 
-func updateRedis(info *BlogInfo) error {
+func updateRedis(info *common.BlogInfo) error {
 	c, err := redis.Dial("tcp", "127.0.0.1:6379")
 	if err != nil {
 		return fmt.Errorf("Redis connect failed! %s", err.Error())
