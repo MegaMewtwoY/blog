@@ -57,13 +57,14 @@ data/
 
 通过 Redis 的方式存储.
 
-key 为 文件名(必须要求博客的名字不重复, 不过这样要求并不过分)
+key 为 文件名(不包含扩展名. 必须要求博客的名字不重复, 不过这样要求并不过分)
 
-value 包含
+value (按照 Json 的方式存储) 包含
 
-* id (日期+html文件名字)
+* 文件名(不包含扩展名)
 * 修改时间(YYYY/MM/DD HH:MM:SS)
 * 标签(字符串列表)
+* 描述(摘要, 博客正文的前一段内容)
 
 ## 博客发布工具
 
@@ -82,7 +83,7 @@ golang 中提供了一个 blackfriday 库, 可以很方便的完成 md 到 html 
 
 使用方法很简单
 
-```
+```sh
 # 安装 blackfriday
 go get -u gopkg.in/russross/blackfriday.v2
 
@@ -98,7 +99,27 @@ blackfriday-tool -css=sspai.css input.md output.html
 https://sspai.com/post/43873
 
 ### 操作 Redis 
+golang 操作 Redis 基于 github.com/garyburd/redigo/redis
 
+```go
+go get -u github.com/garyburd/redigo/redis
+```
+
+### 获取环境变量
+需要通过 GOBIN 来找到 blackfriday-tool 路径
+
+```go
+import "os"
+gobin := os.Getenv("GOBIN")
+```
+
+### 创建子进程
+通过子进程的方式调用 blackfriday-tool 
+```go
+import "os/exec"
+bf := exec.Command(gobin+"/blackfriday-tool", "-css=sspai.css", inputPath, outputPath)
+stdout, err := bf.Output()
+```
 
 ## 博客服务器
 
@@ -114,8 +135,8 @@ https://sspai.com/post/43873
 
 ```json
 {
-	"ok": true,
-    "reason": "",
+  "ok": true,
+  "reason": "",
 	"blogs": [
         {
             "name": "基于golang+vue的博客系统",
