@@ -35,13 +35,13 @@ const (
 
 var (
 	// 存储所有的博客数据
-	blogs Blogs
+	blogs Blogs = make(Blogs, 0, 50)
 
 	// 月份 -> 下标列表
-	monthIndex map[string][]int
+	monthIndex map[string][]int = make(map[string][]int)
 
 	// 标签 -> 下标列表
-	tagIndex map[string][]int
+	tagIndex map[string][]int = make(map[string][]int)
 )
 
 func init() {
@@ -99,8 +99,8 @@ func GetPage(page string) []BlogItem {
 		fmt.Println("page convert err! page =", page, err)
 		return nil
 	}
-	// 每页10条博客, 所以乘以11
-	if pageNum < 1 || pageNum*11 > len(blogs) {
+	// 判定页码是否合理
+	if pageNum < 1 || pageNum > len(blogs)/10+1 {
 		fmt.Println("page error! page =", page)
 		return nil
 	}
@@ -108,5 +108,10 @@ func GetPage(page string) []BlogItem {
 	// page 2 10-19
 	// page 3 20-29
 	// page n (n-1)*10 - n*10
-	return blogs[(pageNum-1)*10 : pageNum*10]
+	beg := (pageNum - 1) * 10 // 博客的起始下标
+	end := pageNum * 10       // 博客的结束下标
+	if end > len(blogs) {
+		end = len(blogs)
+	}
+	return blogs[beg:end]
 }

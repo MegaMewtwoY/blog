@@ -50,20 +50,18 @@ TODO
 ```
 # tree -N data/ 结构
 data/
-└── 201901
-    └── 基于golang+vue的博客系统.html
+└── 基于golang+vue的博客系统.html
 ```
 
 ### 博客元数据
 
 通过 Redis 的方式存储.
 
-key 为 日期+html文件名字
+key 为 文件名(必须要求博客的名字不重复, 不过这样要求并不过分)
 
 value 包含
 
 * id (日期+html文件名字)
-* 创建时间(YYYY/MM/DD HH:MM:SS)
 * 修改时间(YYYY/MM/DD HH:MM:SS)
 * 标签(字符串列表)
 
@@ -73,6 +71,34 @@ value 包含
 
 * 将 md 文件转为 html, 并发布到指定目录中.
 * 修改 Redis 中的元数据
+
+### Markdown 转换为 HTML
+
+golang 中提供了一个 blackfriday 库, 可以很方便的完成 md 到 html 之间的转换
+
+并且还提供了一个 blackfriday-tool (一个现成的命令行工具)
+
+此处直接基于 blackfriday-tool 来完成转换. 
+
+使用方法很简单
+
+```
+# 安装 blackfriday
+go get -u gopkg.in/russross/blackfriday.v2
+
+# 安装 blackfriday-tool
+go get github.com/russross/blackfriday-tool
+
+# 使用 blackfriday-tool 进行转换, 可以使用 -css 选项指定样式.
+blackfriday-tool -css=sspai.css input.md output.html
+```
+
+其中 Markdown 样式文件出自
+
+https://sspai.com/post/43873
+
+### 操作 Redis 
+
 
 ## 博客服务器
 
