@@ -14,6 +14,7 @@ import (
 
 const (
 	outputPathPrefix = "../data/"
+	AllBlogs         = "AllBlogs"
 )
 
 func main() {
@@ -85,6 +86,10 @@ func updateRedis(info *common.BlogInfo) error {
 	_, err = c.Do("SET", info.Name, value)
 	if err != nil {
 		return fmt.Errorf("Redis SET falied! %s", err.Error())
+	}
+	_, err = c.Do("lpush", AllBlogs, info.Name)
+	if err != nil {
+		return fmt.Errorf("Redis lpush failed! %s", err.Error())
 	}
 	return nil
 }

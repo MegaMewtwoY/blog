@@ -2,8 +2,8 @@ pub:pub.go
 	go build pub.go
 
 test:pub
-	./pub --input=搜索引擎背景知识.md
+	./pub --input=基于golang+vue的博客系统.md
 
 .PHONY:clean
 clean:
-	rm pub ../data/搜索引擎背景知识.html
+	rm pub ../data/基于golang+vue的博客系统.html
