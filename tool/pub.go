@@ -15,7 +15,6 @@ import (
 
 const (
 	outputPathPrefix = "."
-	AllBlogs         = "AllBlogs"
 )
 
 func main() {

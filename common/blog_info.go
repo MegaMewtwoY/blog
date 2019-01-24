@@ -1,10 +1,12 @@
 package common
 
 type BlogInfo struct {
-	Name       string // 不包含扩展名
-	ModifyDate string
-	Desc       string   // 这个先不管
-	Tag        []string // 这个也先不管
+	Name        string // 不包含扩展名 html
+	Description string // 暂时不考虑
+	Content     string // html 格式的博客正文
+	CreateTime  string // 创建时间
+	ModifyTime  string // 暂时不考虑
+	Tag         string // 暂时不考虑
 }
 
 func (info BlogInfo) Markdown() string {
@@ -22,7 +24,7 @@ func (blogs Blogs) Len() int {
 }
 
 func (blogs Blogs) Less(i, j int) bool {
-	return blogs[i].ModifyDate > blogs[j].ModifyDate
+	return blogs[i].CreateTime > blogs[j].CreateTime
 }
 
 func (blogs Blogs) Swap(i, j int) {
