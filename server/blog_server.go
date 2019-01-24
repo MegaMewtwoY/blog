@@ -44,12 +44,21 @@ func main() {
 	})
 
 	router.GET("/blog/:id", func(c *gin.Context) {
-		id := c.Param("id")
-		c.JSON(200, gin.H{
-			"ok":     true,
-			"reason": "",
-			"id":     id,
-		})
+		name := c.Param("id")
+		blog, err := model.GetBlog(name)
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(404, gin.H{
+				"ok":     false,
+				"reason": err.Error(),
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"ok":     true,
+				"reason": "",
+				"blog":   blog,
+			})
+		}
 	})
 	router.Run(":9092")
 }

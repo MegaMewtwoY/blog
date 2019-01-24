@@ -62,3 +62,23 @@ func GetPage(page string) (common.Blogs, error) {
 	sort.Sort(blogs)
 	return blogs[beg:end], nil
 }
+
+func GetBlog(name string) (common.BlogInfo, error) {
+	// 根据博客名字获取到博客的具体数据
+	blog := common.BlogInfo{}
+	stmt, err := Db.Prepare(`select name, description, content, create_time, modify_time from blogs where name=?`)
+	if err != nil {
+		return blog, fmt.Errorf("Db.Prepare failed! %s", err.Error())
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(name)
+	if err != nil {
+		return blog, fmt.Errorf("stmt.Query failed! %s", err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		rows.Scan(&blog.Name, &blog.Description, &blog.Content, &blog.CreateTime, &blog.ModifyTime)
+		break
+	}
+	return blog, nil
+}
