@@ -33,45 +33,74 @@ TODO
 
 ## 数据存储设计
 
-### 博客内容
+使用 MySQL 作为数据存储媒介. 
 
-通过文件的方式存储博客内容. 
+### 表结构设计
 
-创建 ./data 目录, 作为数据的根目录. 
+**数据库名**
 
-./data 目录中存放日期目录(精确到月, 例如 201901)
-
-然后再在日期目录中存放博客(html文件).
-
-对于每个博客的主键为 日期+html文件名字
-
-目录结构如下:
-
-```
-# tree -N data/ 结构
-data/
-└── 基于golang+vue的博客系统.html
+```sql
+create database blog;
 ```
 
-### 博客元数据
+**博客表**
 
-通过 Redis 的方式存储.
+```sql
+create table blogs (
+    name varchar(255),
+    description text,
+    content text,
+    create_time varchar(100),
+    modify_time varchar(100),
+    tag varchar(255)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+```
 
-key 为 文件名(不包含扩展名. 必须要求博客的名字不重复, 不过这样要求并不过分)
+其中 desc 描述信息, modify_time 修改时间, tag 博客标签暂时不考虑, 字段预留. 
 
-value (按照 Json 的方式存储) 包含
+content 中存的是博客正文的 html. 
 
-* 文件名(不包含扩展名)
-* 修改时间(YYYY/MM/DD HH:MM:SS)
-* 标签(字符串列表)
-* 描述(摘要, 博客正文的前一段内容)
+### golang 操作 MySQL
+
+依赖的包
+
+```go
+"database/sql"
+_ "github.com/go-sql-driver/mysql"
+```
+
+基本操作(建立连接)
+
+```go
+Db, err = sql.Open("mysql", "root:@tcp(localhost:3306)/blog?charset=utf8")
+```
+
+基本操作(插入数据)
+
+```go
+stmt, err := db.Prepare(`insert into blogs values(?, ?, ?, ?, ?, ?)`)
+defer stmt.Close()
+_, err = stmt.Exec(info.Html(), info.Description,
+   info.Content, info.CreateTime, info.ModifyTime, info.Tag)
+```
+
+基本操作(查询)
+
+```go
+// 注意这一堆 defer 
+stmt, err := Db.Prepare(`select name, create_time from blogs`)
+defer stmt.Close()
+rows, err := stmt.Query()
+defer rows.Close()
+for rows.Next() {
+	blog := common.BlogInfo{}
+	rows.Scan(&blog.Name, &blog.CreateTime)
+}
+```
+
+
 
 ## 博客发布工具
-
-一个控制台工具, 能够将指定的 markdown 文件发布为博客
-
-* 将 md 文件转为 html, 并发布到指定目录中.
-* 修改 Redis 中的元数据
 
 ### Markdown 转换为 HTML
 
@@ -97,13 +126,6 @@ blackfriday-tool -css=sspai.css input.md output.html
 其中 Markdown 样式文件出自
 
 https://sspai.com/post/43873
-
-### 操作 Redis 
-golang 操作 Redis 基于 github.com/garyburd/redigo/redis
-
-```go
-go get -u github.com/garyburd/redigo/redis
-```
 
 ### 获取环境变量
 需要通过 GOBIN 来找到 blackfriday-tool 路径
@@ -166,7 +188,20 @@ stdout, err := bf.Output()
 
 **响应示例**
 
-略
+```json
+{
+    "ok": true,
+    "reason": "",
+    blog: {
+        "Name": "基于golang+vue的博客系统.html",
+        "Description": "",
+        "Content": ".......",
+        "CreateTime": "20190124",
+        "ModifyTime": "20190124",
+        "Tag": "golang",
+    }
+}
+```
 
 ## 博客前端
 
