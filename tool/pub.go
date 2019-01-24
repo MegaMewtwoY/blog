@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	outputPathPrefix = "."
+	outputPathPrefix = "./"
 )
 
 func main() {

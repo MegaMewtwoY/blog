@@ -6,4 +6,4 @@ test:pub
 
 .PHONY:clean
 clean:
-	rm pub ../data/基于golang+vue的博客系统.html
+	rm pub *.html
