@@ -2,10 +2,11 @@ package main
 
 import (
 	"blog/common"
-	"encoding/json"
+	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/garyburd/redigo/redis"
+	_ "github.com/go-sql-driver/mysql"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -13,7 +14,7 @@ import (
 )
 
 const (
-	outputPathPrefix = "../data/"
+	outputPathPrefix = "."
 	AllBlogs         = "AllBlogs"
 )
 
@@ -33,10 +34,10 @@ func main() {
 		fmt.Println("convertHtml failed!", err)
 		os.Exit(1)
 	}
-	// 3. 更新 Redis 中的数据
-	err = updateRedis(blogInfo)
+	// 3. 更新 MySQL 中的数据
+	err = updateMySQL(blogInfo)
 	if err != nil {
-		fmt.Println("updateRedis failed!", err)
+		fmt.Println("updateMySQL failed!", err)
 		os.Exit(1)
 	}
 	return
@@ -51,7 +52,7 @@ func getBlogInfo(inputPath string) *common.BlogInfo {
 	fileName := strings.TrimSuffix(f.Name(), ext) // 去除扩展名, 只保留文件名
 	blogInfo := common.BlogInfo{
 		Name:       fileName,
-		ModifyDate: f.ModTime().Format("20060102"),
+		CreateTime: f.ModTime().Format("20060102"),
 	}
 	return &blogInfo
 }
@@ -69,27 +70,33 @@ func convertHtml(info *common.BlogInfo, inputPath string) error {
 	if err != nil {
 		return fmt.Errorf("convertHtml failed! %s\n", err.Error())
 	}
+	// 3. 将刚才吐出的文件加载到 info 对象中
+	html, err := ioutil.ReadFile(outputPath)
+	if err != nil {
+		return fmt.Errorf("ReadFile failed! %s", err.Error())
+	}
+	info.Content = string(html)
 	return nil
 }
 
-func updateRedis(info *common.BlogInfo) error {
-	c, err := redis.Dial("tcp", "127.0.0.1:6379")
+func updateMySQL(info *common.BlogInfo) error {
+	// 1. 连接数据库
+	db, err := sql.Open("mysql", "root:@tcp(localhost:3306)/blog?charset=utf8")
 	if err != nil {
-		return fmt.Errorf("Redis connect failed! %s", err.Error())
+		return fmt.Errorf("MySQL Open failed")
 	}
-	defer c.Close()
+	defer db.Close()
 
-	value, err := json.Marshal(*info)
+	// 2. 插入数据
+	stmt, err := db.Prepare(`insert into blogs values(?, ?, ?, ?, ?, ?)`)
 	if err != nil {
-		return fmt.Errorf("json.Marshal failed! %s", err.Error())
+		return fmt.Errorf("db.Prepare failed!")
 	}
-	_, err = c.Do("SET", info.Name, value)
+	defer stmt.Close()
+	_, err = stmt.Exec(info.Html(), info.Description,
+		info.Content, info.CreateTime, info.ModifyTime, info.Tag)
 	if err != nil {
-		return fmt.Errorf("Redis SET falied! %s", err.Error())
-	}
-	_, err = c.Do("lpush", AllBlogs, info.Name)
-	if err != nil {
-		return fmt.Errorf("Redis lpush failed! %s", err.Error())
+		return fmt.Errorf("stmt.Exec failed")
 	}
 	return nil
 }
