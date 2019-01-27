@@ -95,7 +95,7 @@ var data = new Vue({
     ]
   }
 })
-var htmlobj = $.ajax({url:"/", async:false});
+var htmlobj = $.ajax({url:"/page/1", async:false});
 data.blogs = JSON.parse(htmlobj.responseText) || []
 </script>
 </body>
