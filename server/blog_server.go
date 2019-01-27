@@ -8,22 +8,6 @@ import (
 
 func main() {
 	router := gin.Default()
-	router.GET("/", func(c *gin.Context) {
-		blogs, err := model.GetPage("1")
-		if err != nil {
-			fmt.Println(err)
-			c.JSON(404, gin.H{
-				"ok":     false,
-				"reason": err.Error(),
-			})
-		} else {
-			c.JSON(200, gin.H{
-				"ok":     true,
-				"reason": "",
-				"blogs":  blogs,
-			})
-		}
-	})
 
 	router.GET("/page/:page", func(c *gin.Context) {
 		page := c.Param("page")
@@ -60,5 +44,7 @@ func main() {
 			})
 		}
 	})
+	router.Static("/static/", "../client/")
+	// router.StaticFile("index.html", "../client/index.html")
 	router.Run(":9092")
 }
