@@ -67,18 +67,11 @@
         </ul>
       </div>
   </aside>
-  <main class="r_box">
-    <li><i><a href="/"></a></i>
-      <h3><a href="/">你是什么人便会遇上什么人</a></h3>
-      <p>有时就为了一句狠话，像心头一口毒钉，永远麻痺着亲密感情交流。恶言，真要慎出，平日多誠心爱语，乃最简易之佈施。</p>
-    </li>
-    <li><i><a href="/"></a></i>
-      <h3><a href="/">爱情没有永远，地老天荒也走不完</a></h3>
-      <p>也许，爱情没有永远，地老天荒也走不完，生命终结的末端，苦短情长。站在岁月的边端，那些美丽的定格，心伤的绝恋，都被四季的掩埋，一去不返。徒剩下这荒芜的花好月圆，一路相随，流离天涯背负了谁的思念？</p>
-    </li>
-    <li><i><a href="/"></a></i>
-      <h3><a href="/">女孩都有浪漫的小情怀——浪漫的求婚词</a></h3>
-      <p>还在为浪漫的求婚词而烦恼不知道该怎么说吗？女孩子都有着浪漫的小情怀，对于求婚更是抱着满满的浪漫期待，也希望在求婚那一天对方可以给自己一个最浪漫的求婚词。</p>
+  <main class="r_box" id="blogs">
+    <li v-for="blog in blogs">
+      <i><a v-bind:href="blog.url"></a></i>
+      <h3><a href="/">{{blog.title}}</a></h3>
+      <p>{{blog.desc}}</p>
     </li>
   </main>
 </article>
@@ -86,5 +79,24 @@
   <p>Design by <a href="#" target="_blank">超梦的博客</a> <a href="/">我是备案号</a></p>
 </footer>
 <a href="#" class="cd-top">Top</a>
+<!--依赖 JQuery-->
+<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<!--依赖 Vue.js-->
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script>
+var data = new Vue({
+  el:'#blogs',
+  data:{
+    blogs: [
+      // 对象形如
+      // "title": "这是博客标题",
+      // "desc": "这是博客摘要"
+      // "url": "这是博客url"
+    ]
+  }
+})
+var htmlobj = $.ajax({url:"/", async:false});
+data.blogs = JSON.parse(htmlobj.responseText) || []
+</script>
 </body>
 </html>
