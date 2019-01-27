@@ -6,10 +6,10 @@
 <meta name="keywords" content="技术博客" />
 <meta name="description" content="超梦的博客" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="css/base.css" rel="stylesheet">
-<link href="css/index.css" rel="stylesheet">
-<link href="css/m.css" rel="stylesheet">
-<script src="js/jquery.min.js" type="text/javascript"></script>
+<link href="/static/css/base.css" rel="stylesheet">
+<link href="/static/css/index.css" rel="stylesheet">
+<link href="/static/css/m.css" rel="stylesheet">
+<script src="/static/js/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="js/comm.js"></script>
 <!--[if lt IE 9]>
 <script src="js/modernizr.js"></script>
@@ -25,7 +25,7 @@
   <aside class="l_box">
       <div class="about_me">
         <ul>
-          <i><img src="images/头像.png"></i>
+          <i><img src="/static/images/头像.png"></i>
           <p><b>超梦</b></p>
           <p>超越自己, 梦在前方</p>
         </ul>
@@ -63,41 +63,18 @@
       <div class="guanzhu">
         <h2>关注我</h2>
         <ul>
-          <img src="images/github.png">
+          <img src="/static/images/github.png">
         </ul>
       </div>
   </aside>
-  <main class="r_box" id="blogs">
-    <li v-for="blog in blogs">
-      <i><a v-bind:href="blog.Url"></a></i>
-      <h3><a v-bind:href="blog.Url">{{blog.Name}}</a></h3>
-      <p>{{blog.Desc}}</p>
-    </li>
+  <main class="infosbox">
+    <iframe src="{{.name}}" frameborder="0" width="100%" height="900px" scrolling="auto" seamless>
+    </iframe>
   </main>
 </article>
 <footer>
   <p>Design by <a href="#" target="_blank">超梦的博客</a> <a href="/">我是备案号</a></p>
 </footer>
 <a href="#" class="cd-top">Top</a>
-<!--依赖 JQuery-->
-<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-<!--依赖 Vue.js-->
-<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
-<script>
-var data = new Vue({
-  el:'#blogs',
-  data:{
-    blogs: [
-      // 对象形如
-      // "Name": "这是博客标题",
-      // "Desc": "这是博客摘要"
-      // "Url": "这是博客url"
-    ]
-  }
-})
-var htmlobj = $.ajax({url:"/page/1", async:false});
-var response = JSON.parse(htmlobj.responseText) || {}
-data.blogs = response.blogs
-</script>
 </body>
 </html>

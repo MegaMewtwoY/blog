@@ -7,6 +7,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"sort"
 	"strconv"
+	"strings"
+)
+
+const (
+	blogUrlPrefix = "/blog/"
 )
 
 var (
@@ -46,6 +51,8 @@ func GetPage(page string) (common.Blogs, error) {
 	for rows.Next() {
 		blog := common.BlogInfo{}
 		rows.Scan(&blog.Name, &blog.CreateTime)
+		// 填充 Url 字段, 方便前端直接获取
+		blog.Url = blogUrlPrefix + blog.Name
 		blogs = append(blogs, blog)
 	}
 	// 5. 校验页码是否在有效范围
@@ -80,5 +87,7 @@ func GetBlog(name string) (common.BlogInfo, error) {
 		rows.Scan(&blog.Name, &blog.Description, &blog.Content, &blog.CreateTime, &blog.ModifyTime)
 		break
 	}
+	// 替换引入的 css 文件, 避免出现 css 找不到的情况
+	blog.Content = strings.Replace(blog.Content, "sspai.css", "/static/css/sspai.css", 1)
 	return blog, nil
 }

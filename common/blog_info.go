@@ -3,6 +3,7 @@ package common
 type BlogInfo struct {
 	Name        string // 不包含扩展名 html
 	Description string // 暂时不考虑
+	Url         string // 博客对应的 url
 	Content     string // html 格式的博客正文
 	CreateTime  string // 创建时间
 	ModifyTime  string // 暂时不考虑
